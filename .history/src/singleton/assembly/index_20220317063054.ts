@@ -84,7 +84,7 @@ export function removeItems(_itemIndex: u32, _amountToRemove: u128): string {
 export function placeOrder(_itemIndex: u32, _amountToBuy: u128): string {
     let itemsBought = new PersistentVector<u128>("itemsBought")
     // assert to check if enough money is attached to the account
-    // assert(context.attachedDeposit > u128.Zero), "Not enough money attached to account");
+    assert(context.attachedDeposit > u128.Zero), "Not enough money attached to account";
     
     addItems(_itemIndex, _amountToBuy)
     itemsBought.push(u128.from(_itemIndex))

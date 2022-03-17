@@ -1,4 +1,4 @@
-import { storage, context, PersistentVector, ContractPromiseBatch, u128 } from "near-sdk-core"
+import { storage, context, PersistentVector, ContractPromiseBatch } from "near-sdk-core"
 
 // enum ItemState {
 //     amountPresent,
@@ -21,7 +21,7 @@ export class SmartRefrigerator {
         this.itemAmount = u128.Zero
         this.itemPrice = u128.Zero
         this.OrderPlaced = false
-        this.itemTotalAllowed = u128.from(20)
+        this.itemTotalAllowed = 20
         this.amountPresent = context.attachedDeposit
         // this.itemState = ItemState.Created;
     }    
@@ -59,7 +59,7 @@ export function getItemTotalAllowed(_index: u32): u128 {
 
 // A function to check if there are enough items in the refrigerator; if not return the number of items that are missing
 export function checkRefrigeratorForItem(_itemIndex: u32): bool {
-    if (u128.from(items[_itemIndex].itemAmount) < u128.div(items[_itemIndex].itemTotalAllowed , u128.from(2))) {
+    if (items[_itemIndex].itemAmount < items[_itemIndex].itemTotalAllowed / 2) {
         return true
     } else {
         return false
@@ -75,7 +75,7 @@ export function addItems(_itemIndex: u32, _amountToAdd: u128): string {
 
 // A function to remove items from the refrigerator
 export function removeItems(_itemIndex: u32, _amountToRemove: u128): string {
-    let totalAmountAfterSubtracting = u128.sub(items[_itemIndex].itemAmount, _amountToRemove)
+    let totalAmountAfterSubtracting = u128.sub(items[_itemIndex].itemAmount - _amountToRemove)
     items[_itemIndex].itemAmount = totalAmountAfterSubtracting
     return `✅ Items removed from refrigerator.`
 }
@@ -84,10 +84,10 @@ export function removeItems(_itemIndex: u32, _amountToRemove: u128): string {
 export function placeOrder(_itemIndex: u32, _amountToBuy: u128): string {
     let itemsBought = new PersistentVector<u128>("itemsBought")
     // assert to check if enough money is attached to the account
-    // assert(context.attachedDeposit > u128.Zero), "Not enough money attached to account");
+    assert(context.), "Not enough money attached to account")
     
     addItems(_itemIndex, _amountToBuy)
-    itemsBought.push(u128.from(_itemIndex))
+    itemsBought.push(_itemIndex)
 
     let amountToTransfer = u128.mul(_amountToBuy, items[_itemIndex].itemPrice)
     const to_beneficiary = ContractPromiseBatch.create(context.sender)

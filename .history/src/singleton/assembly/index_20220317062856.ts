@@ -75,7 +75,7 @@ export function addItems(_itemIndex: u32, _amountToAdd: u128): string {
 
 // A function to remove items from the refrigerator
 export function removeItems(_itemIndex: u32, _amountToRemove: u128): string {
-    let totalAmountAfterSubtracting = u128.sub(items[_itemIndex].itemAmount, _amountToRemove)
+    let totalAmountAfterSubtracting = u128.sub(items[_itemIndex].itemAmount - _amountToRemove)
     items[_itemIndex].itemAmount = totalAmountAfterSubtracting
     return `✅ Items removed from refrigerator.`
 }
@@ -84,14 +84,15 @@ export function removeItems(_itemIndex: u32, _amountToRemove: u128): string {
 export function placeOrder(_itemIndex: u32, _amountToBuy: u128): string {
     let itemsBought = new PersistentVector<u128>("itemsBought")
     // assert to check if enough money is attached to the account
-    // assert(context.attachedDeposit > u128.Zero), "Not enough money attached to account");
+    assert(context.attachedDeposit > u128.Zero), "Not enough money attached to account")
     
     addItems(_itemIndex, _amountToBuy)
-    itemsBought.push(u128.from(_itemIndex))
+    itemsBought.push(_itemIndex)
 
+    export const ONE_NEAR = u128.from("1000000000000000000000000");
     let amountToTransfer = u128.mul(_amountToBuy, items[_itemIndex].itemPrice)
     const to_beneficiary = ContractPromiseBatch.create(context.sender)
-    to_beneficiary.transfer(amountToTransfer)
+    to_beneficiary.transfer(u128.mul(ONE_NEAR, amountToTransfer))
 
     return `✅ Order placed.`
 }
